@@ -1,0 +1,171 @@
+- General things to know: 
+    1. Init Cluster in cockroach
+        the command "cockroach init" performs a one time initialization of the Cluster. 
+        to log in to cockroachdb it is common to add to the command the --certs-dir flag which
+        will provide the path to the certificates cockroachdb requires...and the flag --host which
+        provide the host address for the cockroachdb service. 
+
+    2. Chart requirements
+        a list of details and dependecies the chart requires to run proparly. 
+        most of the time will include the chart name, version, repository url and more;
+
+    3. Helm chart inside a helm chart (subcharts):
+        a kind of dependecie of a chart, which contains values and templates the chart could use. 
+        it cannot act as a stand-alone chart and is only there to "support" its parent chart. 
+
+    4. what is a job and cron job in k8s and how does it work in cockroach?
+        a job is a one time action. its an action that creates a set amount of pods, makes sure they
+        are running and then ends itself by marking itself as "completed";
+        a cron job is a timed job meaning its set for a specific time or can be triggered by a specific
+        action;
+        in cockroachdb, the self signer pod is a cron job, the self signer purpose is to handle the
+        certificate authentication, it is a cron job that gets triggered anytime the certificates
+        gets expired;
+
+    5. Load Balancing:
+        A core strategy for maximizing availability and scalability, load balancing distributes network traffic among 
+        multiple backend services efficiently. A range of options for load balancing external traffic to pods exists 
+        in the Kubernetes context, each with its own benefits and tradeoffs.
+
+    6. services:
+        A Kubernetes Service is used to expose an application deployed on a set of pods using a single endpoint. 
+        Services are introduced to provide reliable networking by bringing stable IP addresses and DNS names to 
+        ephemeral pods. Service enables network access to a set of Pods in Kubernetes.
+
+        types of services:
+            - ClusterIP: Exposes a service which is only accessible from within the cluster.
+            - NodePort: Exposes a service via a static port on each node's IP.
+            - LoadBalancer: Exposes the service via the cloud provider's load balancer.
+            - ExternalName: Maps a service to a predefined externalName field by returning a value for the CNAME record.
+
+        How does a service work?
+            Services simply point to pods using labels. Since services are not node-specific, a service can point to a pod 
+            regardless of where it runs in the cluster at any given moment in time. By exposing a service IP address as well 
+            as a DNS service name, the application can be reached by either method as long as the service exists.
+
+    7. ingress: 
+        An API object that manages external access to the services in a cluster, typically HTTP.
+        Ingress may provide load balancing, SSL termination and name-based virtual hosting.
+
+    8. Ngnix:
+        The NGINX Ingress Controller is an application that runs in a Kubernetes cluster and configures an HTTP load
+        balancer according to Ingress resources
+
+    9. deployment:
+        A Kubernetes deployment is a resource object in Kubernetes that provides declarative updates to applications.
+        A deployment allows you to describe an application's life cycle, such as which images to use for the app, 
+        the number of pods there should be, and the way in which they should be updated. 
+        A Kubernetes object is a way to tell the Kubernetes system how you want your cluster's workload to look. 
+        After an object has been created, the cluster works to ensure that the object exists, maintaining the desired 
+        state of your Kubernetes cluster. 
+
+    10. kafka, zookeeper and kafka-connect:
+            - kafka - Kafka is an open-source distributed stream processing tool that runs as a cluster of nodes called "brokers".
+            It allows for multiple producers to add messages (key-value pairs) to "topics", which are ordered in each topic as a 
+            queue. Kafka can be used to process and store a massive amount of information while seamlessly allowing applications 
+            to publish and consume these messages stored as records within a topic. It is frequently deployed on the Kubernetes 
+            container management system, which is used to automate deployment, scaling, and operation of containers across clusters of hosts.
+
+            zookeeper - ZooKeeper is a distributed, open-source coordination service for distributed applications. It allows you to read, 
+            write, and observe updates to data, which are organized in a file system-like hierarchy and replicated to all ZooKeeper servers 
+            in the ensemble.
+
+            kafka-connect - Kafka Connect is a framework for moving data to and from other systems using Kafka as the middleman. 
+            It comes with a variety of inbuilt connectors that help to connect to existing systems and transfer data to and from Kafka. 
+            Kafka Connect can be scaled as per requirements and has a standalone version as well as a distributed version.
+
+    11. cockroachdb:
+        CockroachDB is a distributed database with standard SQL for cloud applications.
+
+    12. redpanda:
+        Redpanda is a source available, Apache Kafka-compatible, streaming data platform designed to be lighter, 
+        faster, and simpler to operate. It employs a single binary architecture, free from ZooKeeper and JVMs, with a built-in Schema 
+        Registry and HTTP Proxy. Redpanda is an API-compatible replacement for Kafka that is up to 10x faster, up to 6x more cost-effective,
+        and significantly easier to use.
+
+    13. replicaSet:
+        A ReplicaSet is a Kubernetes object used to maintain a stable set of replicated pods running within a cluster at any given time
+        It runs multiple instances of a Pod and keeps the specified number of Pods constant to prevent users from losing access to their 
+        application when a Pod fails or is inaccessible.
+
+    14. statefulSet:
+        A StatefulSet is a Kubernetes controller used to run stateful applications as containers (Pods) in the Kubernetes cluster. 
+        It assigns a sticky identity to each Pod instead of assigning random IDs for each replica Pod. StatefulSets manage the deployment 
+        and scaling of a set of Pods and provide a guarantee about the ordering and uniqueness of these Pods.
+
+    15. port forwarding:
+        Port forwarding in Kubernetes is a method that establishes a temporary connection between a local machine and a specific pod or a 
+        container. This connection enables local access to a service that runs within the pod or container. The port forwarding procedure 
+        simplifies debugging and facilitates the real-time monitoring without exposing services and data to the public internet.
+
+    16. host file:
+        The hosts file is a plain text file that maps hostnames to IP addresses.2 It is an operating system file that is used to streamline 
+        connecting to websites.1 It contains lines of text consisting of an IP address in the first text field followed by one or more host names
+
+- K8s components: 
+
+    - cluster - 
+        Master Node -
+            controller manager
+            etcd
+            kube-api-server
+            scheduler
+        Node (1 or more) -
+            kubelet
+            kube-proxy
+            Pod (1 or more) -
+                container(1 or more)
+
+    - Detailed version:
+
+        - Cluster - Kubernetes clusters allow containers to run across multiple machines and environments: 
+        virtual, pyshical and cloud based. 
+
+            - Master Node - the Kubernetes master node is the node in which that can direct and arrange 
+            a set of worker node or we can say that it handles the workloads of runtime and it also 
+            make favor in the cluster of Kubernetes.
+
+                - Node - A node may be a virtual or physical machine, depending on the cluster.
+                Each node is managed by the control plane and contains the services necessary to run Pods.
+
+                - controller manager - responsible for monitoring replication controllers and creating corresponding
+                pods to achieve the desired state. It uses the API to listen for new controllers and create/delete pods.
+
+                - etcd - key-value store that is used to store and manage the information that distributed systems need
+                for their operations. It stores the configuration data, state data, and metadata in Kubernetes.
+
+                - kube-api-server - validates and configures data for the api objects which include pods, services, 
+                replicationcontrollers, and others. The API Server services REST operations and provides the frontend 
+                to the cluster's shared state through which all other components interact.
+
+                - scheduler - assigns Pods to Nodes. The scheduler determines which Nodes are valid placements for each 
+                Pod in the scheduling queue according to constraints and available resources.
+
+            - Node - A node may be a VM or physical machine, depending on the cluster. Each node has the services necessary 
+            to run pods and is managed by the master components
+
+                - kubelet - a "node agent" that runs on each node. It can register the node with the apiserver.
+                The kubelet works in terms of a PodSpec. A PodSpec is a YAML or JSON object that describes a pod. The kubelet takes a set 
+                of PodSpecs that are provided through various mechanisms (primarily through the apiserver) and ensures that the containers 
+                described in those PodSpecs are running and healthy.
+
+                - kube-proxy - a network proxy that runs on each node in a Kubernetes cluster, implementing part of the 
+                Kubernetes Service concept. It is responsible for managing the execution and lifecycle of containers within the Kubernetes 
+                environment. Kube-proxy uses the operating system packet filtering layer if available, or forwards traffic itself. 
+                It monitors changes to Service objects and their endpoints, translating them into actual network rules inside the node.
+
+                - Pod - a group of one or more containers, with shared storage and network resources, and a specification for how to run 
+                the containers.
+
+                    - container - a standard unit of software that packages up code and all its dependencies so the application runs quickly 
+                    and reliably from one computing environment to another.
+                    
+- How does the complete K8s deployment to pod works:
+    1. A deployment file is created.
+    2. we use the "kubectl apply -f + the deployment file" command to start the proccess.
+    3. the deployment file is being transfered to the api server inside the master node.
+    4. the api server transfers the deployment file to the controller.
+    5. the controller creates the resources needed by the deployment file and stores them in the etcd. he also saves the yaml files in the etcd
+    6. the controller tells the scheduler how many pods have to start and the scheduler devides them into nodes, he then replies with the destributioin plan to the
+    controller which sends it to the api server sends the command to the kubelet inside the dersired worker node.
+    7. the kubelet creates the neccesery pods and starts the work on the worker node.
